@@ -1,4 +1,6 @@
 import React from 'react';
+import { axiosWithAuth } from '../utils/axiosWithAuth';
+import { Redirect } from 'react-router-dom';
 
 class Login extends React.Component {
   state = {
@@ -20,9 +22,19 @@ class Login extends React.Component {
   login = e => {
     e.preventDefault();
 
-  }
+    axiosWithAuth()
+      .post('api/login', this.state.credentials)
+      .then(res => {
+       localStorage.setItem('token', res.data)
+       this.props.history.push('/friends')
+      })
+      .catch(err => console.log(err.response))
+  };
 
   render() {
+    if(localStorage.getItem('token')) {
+      return <Redirect to='friends' />;
+    }
     return (
       <div>
         <form onSubmit= {this.login}>
@@ -31,12 +43,14 @@ class Login extends React.Component {
           name='username'
           value={this.state.credentials.username}
           onChange={this.handleChange}
+          placeholder='Username'
           />
           <input
-            type='text'
+            type='password'
             name="password"
             value={this.state.credentials.password}
             onChange={this.handleChange}
+            placeholder='Passoword'
             />
             <button>Log in</button>
 
